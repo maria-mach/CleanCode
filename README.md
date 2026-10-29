@@ -4,6 +4,10 @@ Este repositório compara o antes e o depois do `RepublicaService`, da API de de
 
 O código veio da disciplina de APIs e Microsserviços. Depois de apresentar o trabalho, o professor pediu para dividir o service, usar tipos explícitos no lugar de `var` e deixar uma instrução por linha. A refatoração também foi usada como exemplo na disciplina de Engenharia de Software.
 
+## Uso de IA
+
+Esta refatoração foi feita com o auxílio do Claude, uma IA da Anthropic. O Claude ajudou a renomear e escrever os tipos, separar as instruções, dividir o `RepublicaService` em serviços, conferir o resultado com o capítulo 9 de *Engenharia de Software Moderna* e escrever o relatório. O escopo (apenas o `RepublicaService`, por falta de tempo) e as dificuldades relatadas são minhas.
+
 [Leia o relatório completo em PDF](docs/relatorio-refatoracao-clean-code.pdf).
 
 ## Onde está cada versão
