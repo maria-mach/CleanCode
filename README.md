@@ -1,47 +1,50 @@
-# Clean Code: antes e depois do RepublicaService
+# Refatoração com Clean Code: RepublicaService
 
-Comparação da versão antiga do serviço de despesas de uma república com a versão separada por responsabilidade.
+Este repositório compara o antes e o depois do `RepublicaService`, da API de despesas de república feita em Java com Spring.
 
-## Versão antiga
+O código veio da disciplina de APIs e Microsserviços. Depois de apresentar o trabalho, o professor pediu para dividir o service, usar tipos explícitos no lugar de `var` e deixar uma instrução por linha. A refatoração também foi usada como exemplo na disciplina de Engenharia de Software.
 
-[`antes/RepublicaService.java`](antes/RepublicaService.java) é a cópia histórica do serviço monolítico, anterior à primeira refatoração. Reúne operações de membros, despesas, recorrências, pagamentos, saldos e relatórios, com nomes abreviados e várias instruções na mesma linha.
+[Leia o relatório completo em PDF](docs/relatorio-refatoracao-clean-code.pdf).
 
-## Versão refatorada
+## Onde está cada versão
 
-| Arquivo | Responsabilidade |
+- **[Antes](antes/RepublicaService.java):** uma classe concentrava membros, despesas, recorrências, pagamentos, saldos e relatórios.
+- **[Depois](depois):** o código foi dividido em seis serviços e duas classes de apoio.
+
+| Serviço | O que faz |
 |---|---|
-| [MembroService](depois/MembroService.java) | Criação da república, convite, entrada, saída, administração e consulta dos membros. |
-| [DespesaService](depois/DespesaService.java) | Consulta, lançamento, edição e exclusão de despesas. |
-| [RecorrenciaService](depois/RecorrenciaService.java) | Cadastro de modelos recorrentes e geração das despesas mensais. |
-| [PagamentoService](depois/PagamentoService.java) | Registro, confirmação e consulta dos pagamentos. |
-| [SaldoService](depois/SaldoService.java) | Cálculo dos saldos, sugestões de acerto, extrato e relatórios. |
-| [FechamentoService](depois/FechamentoService.java) | Fechamento mensal. |
-| [ContextoRepublica](depois/ContextoRepublica.java) | Contexto do usuário, trava por república e verificações compartilhadas. |
-| [RegrasDespesa](depois/RegrasDespesa.java) | Preenchimento e validação de alterações das despesas, compartilhados com recorrências. |
+| [MembroService](depois/MembroService.java) | Cria a república e cuida da entrada, saída e administração dos moradores. |
+| [DespesaService](depois/DespesaService.java) | Lista, busca, lança, edita e exclui despesas. |
+| [RecorrenciaService](depois/RecorrenciaService.java) | Cadastra modelos e gera as despesas do mês. |
+| [PagamentoService](depois/PagamentoService.java) | Registra, confirma e lista pagamentos. |
+| [SaldoService](depois/SaldoService.java) | Calcula saldos, sugere acertos e monta os relatórios. |
+| [FechamentoService](depois/FechamentoService.java) | Fecha o mês para impedir alterações nas despesas. |
 
-## Principais mudanças
+O que era usado por vários serviços ficou em [ContextoRepublica](depois/ContextoRepublica.java) e [RegrasDespesa](depois/RegrasDespesa.java), como a trava por república, as verificações e o preenchimento da despesa.
 
-- Separação das responsabilidades do serviço original.
-- Tipos explícitos e nomes descritivos para variáveis, parâmetros e métodos.
-- Uma instrução por linha e chaves nos blocos condicionais.
-- Reutilização da trava e das validações, sem dependências circulares entre os serviços.
-- Preservação da ordem das validações, mensagens, regras e transações.
-- Métodos como `buscarDespesa`, `listarDespesas`, `criarModelo`, `listarModelos` e `listarPagamentos` explicitam a operação realizada.
+## O que mudou
 
-Os componentes compartilhados usam a transação do serviço chamador. O bloqueio continua valendo até o término dessa transação.
+- Abreviações como `m`, `r` e `d` viraram `morador`, `republica` e `despesa`.
+- Os tipos passaram a ser escritos, como `Republica republica`.
+- Cada instrução ficou em uma linha, com chaves nos `if`.
+- Trechos grandes foram separados em métodos menores.
+- Os comentários passaram a explicar o motivo das decisões.
+- No projeto completo, os textos dos eventos viraram o enum `TipoEvento`, sem mudar o JSON.
 
-## Como comparar
+As regras de negócio, mensagens de erro e transações foram mantidas.
 
-1. Leia o método desejado em `antes/RepublicaService.java`.
-2. Abra o serviço correspondente na pasta `depois`.
-3. Para as verificações reutilizadas, consulte `ContextoRepublica` e `RegrasDespesa`.
+## Dificuldades e aprendizado
 
-O histórico também registra primeiro a versão antiga e depois a versão refatorada.
+A parte mais difícil foi dividir a classe sem criar dependências circulares. Por exemplo, a saída de um morador depende do saldo, e os relatórios usam a consulta de despesas.
 
-## Escopo deste repositório
+Também foi necessário manter a trava dentro da transação da operação. O `ContextoRepublica` não abre uma transação própria.
 
-Este repositório contém somente os serviços derivados do `RepublicaService` e os componentes extraídos, para estudo e comparação. Não é a API completa e não compila isoladamente.
+Os **29 testes automatizados passaram no projeto completo**. Bons nomes e etapas separadas deixaram o código mais fácil de ler e explicar.
 
-DTOs, entidades, repositórios, controllers, configurações, testes e o enum `TipoEvento` permanecem no projeto da API. `AuthService` e `DivisaoService` também são dependências desse projeto e não foram copiados por não fazerem parte da divisão apresentada aqui.
+## O que ainda pode melhorar
 
-A versão final foi validada no projeto completo com **29 testes aprovados**, incluindo verificações de ordem das validações, contrato do extrato, pagamentos e rollback do lote recorrente. Os testes não estão incluídos neste repositório de comparação.
+Por enquanto, o foco foi o `RepublicaService`. As entidades ainda têm atributos públicos, o `SaldoService` reúne saldos e relatórios e outras partes da API ainda precisam da mesma revisão. Testes de concorrência no banco real também são uma melhoria futura.
+
+A refatoração foi conferida com o capítulo 9 de *Engenharia de Software Moderna*, de Marco Tulio Valente.
+
+Este repositório contém apenas a comparação dos serviços e o relatório. Não é a API completa e não compila sozinho: DTOs, entidades, repositórios, testes e outras dependências continuam no projeto original.
